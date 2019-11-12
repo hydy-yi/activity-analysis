@@ -65,4 +65,5 @@ for(i in 4:81) {
 colnames(sub_act_mean) <- colnames(data_df)
 
 write.csv(sub_act_mean, "average_activity_subject.csv")
+write.table(sub_act_mean, file = "tidy data set.txt", row.names = FALSE, quote = FALSE)
 
