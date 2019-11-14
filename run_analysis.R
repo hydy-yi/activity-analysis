@@ -1,5 +1,6 @@
 ## Create file to get and clean data from Samsung Galaxy S Smartphone
 
+setwd("raw data")
 library(dplyr)
 library(data.table)
 
@@ -10,27 +11,29 @@ selectf <- grep("mean|std", labs[ ,2])
 
 # Read training data
 
+subject <- read.table("subject_train.txt")
 activity <- read.table("y_train.txt")
-train_subject <- read.table("subject_train.txt")
-train_data <- read.table("X_train.txt")
-train_set <- cbind(train_subject, activity, train_data)
+train_data <- read.table("X_train.txt", col.names = labs[ ,2])
+train_set <- cbind(subject, activity, train_data)
 
 # Read test data
 
+subject2 <- read.table("subject_test.txt")
 activity2 <- read.table("y_test.txt")
-test_subject <- read.table("subject_test.txt")
-test_data <- read.table("X_test.txt")
-test_set <- cbind(test_subject, activity2, test_data)
+test_data <- read.table("X_test.txt", col.names = labs[ ,2])
+test_set <- cbind(subject2, activity2, test_data)
 
 # Combine training and test data set
 
 bind_set <- rbind(train_set, test_set)
-write.csv(bind_set, "train_test_dataset.csv")
+colnames(bind_set)[1] <- "subject"
+colnames(bind_set)[2] <- "activity"
 
 # Select "mean" and "std" data columns only 
 s_set <- bind_set[ , selectf+2]
 data_set <- cbind(bind_set[ ,1], bind_set[ ,2], s_set)
-write.csv(bind_set, "mean and std_dataset.csv")
+colnames(data_set)[1] <- "subject"
+colnames(data_set)[2] <- "activity"
 
 # Uses descriptive activity names to name the activities
 
@@ -40,17 +43,6 @@ data_set$activity <- sub("3", "WALKING_DOWNSTAIRS", data_set$activity)
 data_set$activity <- sub("4", "SITTING", data_set$activity)
 data_set$activity <- sub("5", "STANDING", data_set$activity)
 data_set$activity <- sub("6", "LAYING", data_set$activity)
-
-# Name the data_set columns. The description of column names stored in column names.csv
-
-colnames(data_set)[1] <- "subject"
-colnames(data_set)[2] <- "activity"
-for(i in 1:79) {
-  colnames(data_set)[i+2] <- paste("feature", as.character(i), sep = "")
-}
-namef <- cbind(colnames(data_set), c("subject", "activity", 
-                                     as.character(labs[selectf, 2])))
-write.csv(namef, "column names.csv", quote = FALSE)
 
 # Create data set with average of features for each activity and each subject
 
@@ -64,6 +56,10 @@ for(i in 4:81) {
   }
 colnames(sub_act_mean) <- colnames(data_df)
 
-write.csv(sub_act_mean, "average_activity_subject.csv")
-write.table(sub_act_mean, file = "tidy data set.txt", row.names = FALSE, quote = FALSE)
+
+# Write data frame
+setwd <- "tidy data"
+write.csv(bind_set, "train_test_dataset.csv")
+write.csv(data_set, "mean and std_dataset.csv")
+write.table(sub_act_mean, "tidy data set.txt", quote = FALSE, sep = " ")
 
